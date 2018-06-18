@@ -1,3 +1,4 @@
 image: Visual Studio 2015
 build_script:
-- cmd: cl /EHsc /W4  test.cpp app.cpp
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  - cmd: cl /EHsc /W4  test.cpp app.cpp
