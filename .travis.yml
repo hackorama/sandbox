@@ -24,6 +24,8 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then lcov --directory . --capture --output-file coverage.info ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then lcov --remove coverage.info 'catch.hpp' '/usr/*' --output-file coverage.info ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then lcov --list coverage.info ; fi
+after_success: 
+  - bash <(curl -s https://codecov.io/bash)
 
 
 
