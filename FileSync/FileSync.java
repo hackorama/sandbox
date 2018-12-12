@@ -30,12 +30,10 @@ public class FileSync {
     private static final long DEFAULT_INTERVAL_MS = TimeUnit.SECONDS.toMillis(5); // defaults to every 5 second
     private static final String DEFAULT_DESTINATION = "/tmp";
 
-    private String destinationRootPath = DEFAULT_DESTINATION;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private String destinationRootPath = DEFAULT_DESTINATION;
     private Map<WatchKey, Path> keyPaths = new HashMap<>();
-
     private WatchService watcher;
-
     private String sourceRootPath;
 
     private void deleteIfExists(String filePath) throws IOException {

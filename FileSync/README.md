@@ -4,7 +4,7 @@ Sync files across folders watching for incremental changes using a file change w
 
 
 ```
-c$ ./test.sh
+$ ./test.sh
 
 Testing initial sync ...
 
