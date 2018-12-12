@@ -27,7 +27,6 @@ mkdir /tmp/fsync
 mkdir /tmp/fsync/src
 mkdir /tmp/fsync/dst
 
-
 mkdir /tmp/fsync/src/1
 mkdir /tmp/fsync/src/2
 mkdir /tmp/fsync/src/2/21
@@ -43,8 +42,7 @@ echo "11" > /tmp/fsync/src/1/11.txt
 echo "21" > /tmp/fsync/src/2/21/21.txt
 echo "33" > /tmp/fsync/src/3/31/32/33/33.txt
 
-
-# Build and run in the background
+# Build and run app in the background
 
 javac FileSync.java
 java FileSync /tmp/fsync/src /tmp/fsync/dst 2000 &
@@ -54,6 +52,7 @@ echo "Testing initial sync ..."
 echo ""
 
 # Wait for app 
+
 sleep 2
 
 check /tmp/fsync/src /tmp/fsync/dst
@@ -61,6 +60,8 @@ check /tmp/fsync/src /tmp/fsync/dst
 echo ""
 echo "Testing incremental sync ..."
 echo ""
+
+# Tests for change watcher 
 
 # modify file
 echo "33 33" > /tmp/fsync/src/3/31/32/33/33.txt
@@ -73,11 +74,12 @@ rm -rf /tmp/fsync/src/2/21
 # add folder 
 mkdir /tmp/fsync/src/2/222
 
-# Wait for polling interval to pass
+# Wait for polling interval time 
+
 sleep 3
+
+# Kill the background app process
 
 pkill -f 'java.*FileSync'
 
 check /tmp/fsync/src /tmp/fsync/dst
-
-

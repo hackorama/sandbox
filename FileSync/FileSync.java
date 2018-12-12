@@ -45,9 +45,8 @@ public class FileSync {
     }
 
     private String getDestinationDirectory(String childPath) {
-        // NOTE: Uses a fixed destination, but this could provides different destination
-        // for each file
-        return destinationRootPath + "/" + childPath.substring(sourceRootPath.length() + 1);
+        // NOTE: Uses a fixed destination, but this could provide different destination for each file
+        return destinationRootPath + "/" + childPath.substring(sourceRootPath.length() + 1); //TODO use platform independent file path separator 
     }
 
     private void incrementalSync(String sourcePath, long syncIntervalMilliSecs)
@@ -59,7 +58,7 @@ public class FileSync {
                 Path path = keyPaths.get(key);
                 for (WatchEvent<?> event : key.pollEvents()) {
                     log("DEBUG", "Tracked event : " + event.kind().name() + " " + path.toString() + "/" + event.context());
-                    File file = new File(path.toString() + "/" + event.context());
+                    File file = new File(path.toString() + "/" + event.context()); // TODO use platform independent file path separator
                     if ("ENTRY_DELETE".equals(event.kind().name())) { // delete applies to both file and folders
                         deleteIfExists(getDestinationDirectory(file.getPath()));
                     } else if (!(file.isDirectory() && "ENTRY_MODIFY".equals(event.kind().name()))) {
@@ -73,7 +72,7 @@ public class FileSync {
     }
 
     private void initialSync(String sourcePath) throws IOException {
-        register(sourcePath);
+        register(sourcePath); // register each folder to file change watcher
         File files = new File(sourcePath);
         for (File file : files.listFiles()) {
             syncFile(file.getPath(), getDestinationDirectory(file.getPath()));
@@ -118,7 +117,7 @@ public class FileSync {
         this.destinationRootPath = destinationRootPath;
     }
     
-    public void setTestDestination() throws IOException {
+    public void setTestDestination() throws IOException { // testing only
         Path tmpDir = Files.createTempDirectory("filesync-");
         destinationRootPath = tmpDir.toFile().getAbsolutePath();
     }
