@@ -53,12 +53,13 @@ public class LargeFileReader {
         final int[] readByThreadCounters = new int[threadCount];
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         IntStream.range(0, threadCount).forEach(id -> {
-            new Thread(() -> {
+            executor.submit(() -> {
+                Thread.currentThread().setName("BUFER_READER_" + id);
                 while (totalReadCounter.getAndIncrement() < expectedLinesInFile) {
                     try {
                         String line = buffer.take();
                         if (totalReadCounter.get() % (expectedLinesInFile / 10) == 0) {
-                            // Truncated (to first 32 chars) printing of selected 10 lines to the std out  for logging checks
+                            // Truncated (to first 32 chars) printing of selected 10 lines to the std out for logging checks
                             System.out.format("%s : %s ...%n", Thread.currentThread().getName(), line.substring(0, 32));
                         }
                     } catch (InterruptedException e) {
@@ -68,14 +69,7 @@ public class LargeFileReader {
                 }
                 System.out.format("Thread %s finished reading %,d lines of expected %,d lines data%n",
                         Thread.currentThread().getName(), readByThreadCounters[id], expectedLinesInFile);
-                StringBuffer sb = new StringBuffer();
-                sb.append("Data read across " + threadCount + " threads ");
-                IntStream.of(readByThreadCounters).forEach(c -> {
-                    sb.append(c + " ");
-                });
-                sb.append(" = " + IntStream.of(readByThreadCounters).sum());
-                System.out.println(sb.toString());
-            }, "BUFFER_READER_" + id).start();
+            });
         });
         executor.shutdown();
         try {
@@ -83,6 +77,13 @@ public class LargeFileReader {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        StringBuffer sb = new StringBuffer();
+        sb.append("Data read across " + threadCount + " threads ");
+        IntStream.of(readByThreadCounters).forEach(c -> {
+            sb.append(c + " ");
+        });
+        sb.append(" = " + IntStream.of(readByThreadCounters).sum());
+        System.out.println(sb.toString());
     }
 
     private static BlockingQueue<String> startBufferingData(long expectedLinesInFile, long bufferSize) {
