@@ -12,7 +12,7 @@ public class FrequencyPolicy extends Policy {
 
     @Override
     public void trackWrites(String key, String value) {
-        // Frequency policy is not tracked on reads
+        // Frequency policy is not tracked on writes
     }
 
 }
