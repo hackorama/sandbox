@@ -53,7 +53,7 @@ Cache mostRecenclyAccessedCache = new DataCache().size(64).with(new RecentAccess
 
 ## Policy
 
-New eviction policies cab be added by extending [Policy](src/main/java/com/hackorama/cache/policy/Policy.java) and implementing  the specific priority (size, age, frequency) tracking during cache access.
+New eviction policies can be easily added by extending [Policy](src/main/java/com/hackorama/cache/policy/Policy.java) and implementing  the specific priority (size, age, frequency) tracking during cache access.
 
 ```
 public class FrequencyPolicy extends Policy {
