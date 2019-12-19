@@ -1,0 +1,21 @@
+plugins {
+    id 'java-library'
+    id 'com.diffplug.gradle.spotless' version '3.24.1'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+}
+
+spotless {
+    java {
+        trimTrailingWhitespace()
+        indentWithSpaces(4)
+        endWithNewline()
+        removeUnusedImports()
+    }
+}
