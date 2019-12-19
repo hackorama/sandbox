@@ -7,7 +7,7 @@ public class RecentAddPolicy extends Policy {
 
     @Override
     public void trackReads(String key, String value) {
-        // Recently added policy does not track read
+        // Recently added policy does not track reads
     }
 
     @Override
