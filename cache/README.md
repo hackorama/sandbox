@@ -1,6 +1,6 @@
 # Cache
 
-Simple String key value cache with extensible eviction policy and fluid composition.
+Simple String cache with extensible eviction policy and fluid composition.
 
 ```
 Cache leastFrequentlyUsedCache = new DataCache().size(64).with(new FrequencyPolicy());
@@ -18,6 +18,7 @@ Cache mostRecenclyAccessedCache = new DataCache().size(64).with(new RecentAccess
 
 ## Cache
 
+[Cache](src/main/java/com/hackorama/cache/Cache.java) interface
 ```
     /**
      * Removes all elements from this cache
@@ -52,7 +53,7 @@ Cache mostRecenclyAccessedCache = new DataCache().size(64).with(new RecentAccess
 
 ## Policy
 
-For each new policy extend Policy and implement the priority to track during read and write to the cache.
+New eviction policies cab be added by extending [Policy](src/main/java/com/hackorama/cache/policy/Policy.java) and implementing  the specific priority (size, age, frequency) tracking during cache access.
 
 ```
 public class FrequencyPolicy extends Policy {
