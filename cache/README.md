@@ -82,7 +82,14 @@ public class RecentAccessPolicy extends Policy {
 ```
 
 
+## Build
 
+Build and test (JUnit [tests](src/test/java/com/hackorama/cache))
+
+```
+$ ./gradlew build
+$ ./gradlew check
+```
 
 
 
