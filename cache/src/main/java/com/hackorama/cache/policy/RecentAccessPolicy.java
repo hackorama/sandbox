@@ -12,7 +12,7 @@ public class RecentAccessPolicy extends Policy {
 
     @Override
     public void trackWrites(String key, String value) {
-        // Recently accessed policy does not track write
+        // Recently accessed policy does not track writes
     }
 
 }
