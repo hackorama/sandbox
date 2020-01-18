@@ -32,161 +32,161 @@ import java.util.Scanner;
  */
 public class FileSorter {
 
-	public static void main(String[] args) throws IOException {
-		new FileSorter().test();
-	}
+    public static void main(String[] args) throws IOException {
+        new FileSorter().test();
+    }
 
-	private File createFile(String prefix) throws IOException {
-		return File.createTempFile(prefix + "-", "-tmp.txt");
-	}
+    private File createFile(String prefix) throws IOException {
+        return File.createTempFile(prefix + "-", "-tmp.txt");
+    }
 
-	/**
-	 * Create a test file of all lower case alphabets in random order as the input
-	 * Each call creates a different order of unsorted alphabets
-	 */
-	private File createTestFile() throws IOException {
-		File file = createFile("unsorted");
-		List<Character> letters = new ArrayList<>();
-		for (int i = 0; i < 26; i++) {
-			letters.add((char)(97 + i)); // ASCII lower case starts at 97
-		}
-		Collections.shuffle(letters);
-		try (FileWriter writer = new FileWriter(file)) {
-			letters.stream().forEach(letter -> {
-				try {
-					writer.append(letter + System.lineSeparator()); // append as a new line
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			});
-		}
-		return file;
-	}
+    /**
+     * Create a test file of all lower case alphabets in random order as the input
+     * Each call creates a different order of unsorted alphabets
+     */
+    private File createTestFile() throws IOException {
+        File file = createFile("unsorted");
+        List<Character> letters = new ArrayList<>();
+        for (int i = 0; i < 26; i++) {
+            letters.add((char)(97 + i)); // ASCII lower case starts at 97
+        }
+        Collections.shuffle(letters);
+        try (FileWriter writer = new FileWriter(file)) {
+            letters.stream().forEach(letter -> {
+                try {
+                    writer.append(letter + System.lineSeparator()); // append as a new line
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        } // Try with auto closes all open resources
+        return file;
+    }
 
-	private void mergeSortBatches(ArrayList<File> files) throws IOException {
+    private void mergeSortBatches(ArrayList<File> files) throws IOException {
 
         // Create scanners that will read one line at a time from sorted batch files
-		ArrayList<Scanner> scanners = new ArrayList<>();
-		files.forEach(file -> {
-			try {
-				scanners.add(new Scanner(new FileInputStream(file)));
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		});
+        ArrayList<Scanner> scanners = new ArrayList<>();
+        files.forEach(file -> {
+            try {
+                scanners.add(new Scanner(new FileInputStream(file)));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
 
-		File file = createFile("sorted");
+        File file = createFile("sorted");
 
-		try (FileWriter writer = new FileWriter(file)) {
-			// In memory batching as a min heap of natural order
-			PriorityQueue<Character> batch = new PriorityQueue<>();
-			// Use an array list for index tracking of scanners
-			List<Character> scannerIndex = new ArrayList<>();
+        try (FileWriter writer = new FileWriter(file)) {
+            // In memory batching as a min heap of natural order
+            PriorityQueue<Character> batch = new PriorityQueue<>();
+            // Use an array list for index tracking of scanners
+            List<Character> scannerIndex = new ArrayList<>();
 
-			// Populate initial batch min heap bounded by number of batches
-			scanners.forEach(scanner -> {
-				if (scanner.hasNextLine()) {
-					Character c = scanner.nextLine().charAt(0);
-					batch.add(c);
-					scannerIndex.add(c);
-				}
-			});
-			while (!batch.isEmpty()) {
-				print(batch);
-				int index = scannerIndex.indexOf(batch.peek());
-				writer.append(batch.poll() + System.lineSeparator());
-				if (scanners.get(index).hasNext()) {
-					Character c = scanners.get(index).nextLine().charAt(0);
-					batch.add(c);
-					scannerIndex.remove(index);
-					scannerIndex.add(index, c);
-				}
-			}
-		} // Try with auto closes all open resources
+            // Populate initial batch min heap bounded by number of batches
+            scanners.forEach(scanner -> {
+                if (scanner.hasNextLine()) {
+                    Character c = scanner.nextLine().charAt(0);
+                    batch.add(c);
+                    scannerIndex.add(c);
+                }
+            });
+            while (!batch.isEmpty()) {
+                print(batch);
+                int index = scannerIndex.indexOf(batch.peek());
+                writer.append(batch.poll() + System.lineSeparator());
+                if (scanners.get(index).hasNext()) {
+                    Character c = scanners.get(index).nextLine().charAt(0);
+                    batch.add(c);
+                    scannerIndex.remove(index);
+                    scannerIndex.add(index, c);
+                }
+            }
+        } // Try with auto closes all open resources
 
-		print(file);
-	}
+        print(file);
+    }
 
-	private void print(ArrayList<File> files) {
-		files.forEach(file -> {
-			try {
-				print(file);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		});
-	}
+    private void print(ArrayList<File> files) {
+        files.forEach(file -> {
+            try {
+                print(file);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+    }
 
-	private void print(File file) throws FileNotFoundException {
-		// Lines are streamed one at a time by scanner
-		try (Scanner scanner = new Scanner(new FileInputStream(file))) {
-			System.out.print(file.getName() + ": ");
-			while (scanner.hasNextLine()) {
-				System.out.print(scanner.nextLine() + " ");
-			}
-			System.out.println();
-		} // Try with auto closes all open resources
-	}
+    private void print(File file) throws FileNotFoundException {
+        // Lines are streamed one at a time by scanner
+        try (Scanner scanner = new Scanner(new FileInputStream(file))) {
+            System.out.print(file.getName() + ": ");
+            while (scanner.hasNextLine()) {
+                System.out.print(scanner.nextLine() + " ");
+            }
+            System.out.println();
+        } // Try with auto closes all open resources
+    }
 
-	private void print(PriorityQueue<Character> queue) {
-		System.out.print("Sorting batch in memory: ");
-		queue.forEach(c -> {
-			System.out.print(c + " ");
-		});
-		System.out.println();
-	}
+    private void print(PriorityQueue<Character> queue) {
+        System.out.print("Sorting batch in memory: ");
+        queue.forEach(c -> {
+            System.out.print(c + " ");
+        });
+        System.out.println();
+    }
 
-	/**
-	 * Sort the given input file with the constraint of maximum number of lines that
-	 * can be loaded at a time
-	 *
-	 * @param inputFile the input file to sort
-	 * @param batchSize the maximum lines that can be loaded at a time
-	 * @throws IOException
-	 */
-	public void sort(File inputFile, int batchSize) throws IOException {
-		print(inputFile);
+    /**
+     * Sort the given input file with the constraint of maximum number of lines that
+     * can be loaded at a time
+     *
+     * @param inputFile the input file to sort
+     * @param batchSize the maximum lines that can be loaded at a time
+     * @throws IOException
+     */
+    public void sort(File inputFile, int batchSize) throws IOException {
+        print(inputFile);
 
-		ArrayList<File> sortedBatchFiles = new ArrayList<>();
-		int batchCounter = 1;
+        ArrayList<File> sortedBatchFiles = new ArrayList<>();
+        int batchCounter = 1;
 
-		try (Scanner scanner = new Scanner(new FileInputStream(inputFile))) {
+        try (Scanner scanner = new Scanner(new FileInputStream(inputFile))) {
 
-			sortedBatchFiles.add(createFile("batch"));
-			FileWriter writer = new FileWriter(sortedBatchFiles.get(sortedBatchFiles.size() - 1));
-			List<Character> batch = new ArrayList<>();
+            sortedBatchFiles.add(createFile("batch"));
+            FileWriter writer = new FileWriter(sortedBatchFiles.get(sortedBatchFiles.size() - 1));
+            List<Character> batch = new ArrayList<>();
 
-			while (scanner.hasNextLine()) {
-				batch.add(scanner.nextLine().charAt(0)); // Skip eol
-				if (batchCounter++ >= batchSize) {
-					batchCounter = 1;
-					sortedBatchFiles.add(createFile("batch"));
-					Collections.sort(batch);
-					for (int i = 0; i < batch.size(); i++) {
-						writer.append(batch.get(i) + System.lineSeparator());
-					}
-					batch.clear();
-					writer.close();
-					writer = new FileWriter(sortedBatchFiles.get(sortedBatchFiles.size() - 1));
-				}
-			}
+            while (scanner.hasNextLine()) {
+                batch.add(scanner.nextLine().charAt(0)); // Skip eol
+                if (batchCounter++ >= batchSize) {
+                    batchCounter = 1;
+                    sortedBatchFiles.add(createFile("batch"));
+                    Collections.sort(batch);
+                    for (int i = 0; i < batch.size(); i++) {
+                        writer.append(batch.get(i) + System.lineSeparator());
+                    }
+                    batch.clear();
+                    writer.close();
+                    writer = new FileWriter(sortedBatchFiles.get(sortedBatchFiles.size() - 1));
+                }
+            }
 
-			if (batch.size() > 0) {
-				Collections.sort(batch);
-				for (int i = 0; i < batch.size(); i++) {
-					writer.append(batch.get(i) + System.lineSeparator());
-				}
-				writer.close();
-			}
-		} // Try with auto closes all open resources
+            if (batch.size() > 0) {
+                Collections.sort(batch);
+                for (int i = 0; i < batch.size(); i++) {
+                    writer.append(batch.get(i) + System.lineSeparator());
+                }
+                writer.close();
+            }
+        } // Try with auto closes all open resources
 
-		print(sortedBatchFiles);
+        print(sortedBatchFiles);
 
-		mergeSortBatches(sortedBatchFiles);
-	}
+        mergeSortBatches(sortedBatchFiles);
+    }
 
-	private void test() throws IOException {
-		sort(createTestFile(), 5);
-	}
+    private void test() throws IOException {
+        sort(createTestFile(), 5);
+    }
 }
 
