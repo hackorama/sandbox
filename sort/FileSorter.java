@@ -22,13 +22,12 @@ import java.util.Scanner;
  *
  * NOTE: Proof of concept, functional version only
  *       Uses line number count as the batch size for demo, could change to memory as needed
- *       Uses a single character lines of alphabet so steps printing fits nicely on console
+ *       Uses a single character lines, so printing of each step fits nicely on console
  *       Prints all file content and in memory contents to console for quick inspection/validation
  *
  * TODO: Switch Character to String as the line
  *       Memory size for batching instead of line count
- *       Better exception handling etc.
- *       Proper logging
+ *       Proper logging, better exception handling etc.
  */
 public class FileSorter {
 
@@ -98,8 +97,7 @@ public class FileSorter {
                 if (scanners.get(index).hasNext()) {
                     Character c = scanners.get(index).nextLine().charAt(0);
                     batch.add(c);
-                    scannerIndex.remove(index);
-                    scannerIndex.add(index, c);
+                    scannerIndex.set(index, c);
                 }
             }
         } // Try with auto closes all open resources
