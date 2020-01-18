@@ -17,6 +17,7 @@ import java.util.Scanner;
  * Read the sorted batch files one line at a time in to a min heap
  *   Keep removing the top element from min heap and write to sorted result file
  *   Keep adding to min heap from sorted batch files one line at a time
+ *      While reading from the same file with lowest value
  *   This keeps the min heap bounded to batch size, while generating the sorted result file
  *
  * NOTE: Proof of concept, functional version only
@@ -40,23 +41,31 @@ public class FileSorter {
 	}
 
 	/**
-	 * Use a test file of all lower case alphabets in random order as the input
-	 *
-	 * @return Unsorted input file
-	 * @throws IOException
+	 * Create a test file of all lower case alphabets in random order as the input
+	 * Each call creates a different order of unsorted alphabets
 	 */
-	public File createTestFile() throws IOException {
+	private File createTestFile() throws IOException {
 		File file = createFile("unsorted");
-		String random = "bynljgftpukdqazoirhxsmvwec";
+		List<Character> letters = new ArrayList<>();
+		for (int i = 0; i < 26; i++) {
+			letters.add((char)(97 + i)); // ASCII lower case starts at 97
+		}
+		Collections.shuffle(letters);
 		try (FileWriter writer = new FileWriter(file)) {
-			for (int i = 0; i < random.length(); i++) {
-				writer.append(random.charAt(i) + System.lineSeparator());
-			}
+			letters.stream().forEach(letter -> {
+				try {
+					writer.append(letter + System.lineSeparator()); // append as a new line
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
 		}
 		return file;
 	}
 
 	private void mergeSortBatches(ArrayList<File> files) throws IOException {
+
+        // Create scanners that will read one line at a time from sorted batch files
 		ArrayList<Scanner> scanners = new ArrayList<>();
 		files.forEach(file -> {
 			try {
@@ -65,38 +74,36 @@ public class FileSorter {
 				e.printStackTrace();
 			}
 		});
+
 		File file = createFile("sorted");
+
 		try (FileWriter writer = new FileWriter(file)) {
-			// In memory batch as a min heap of natural order
+			// In memory batching as a min heap of natural order
 			PriorityQueue<Character> batch = new PriorityQueue<>();
-			// Populate initial batch mon heap bounded by number of batches
+			// Use an array list for index tracking of scanners
+			List<Character> scannerIndex = new ArrayList<>();
+
+			// Populate initial batch min heap bounded by number of batches
 			scanners.forEach(scanner -> {
 				if (scanner.hasNextLine()) {
-					batch.add(scanner.nextLine().charAt(0)); // Skip eol
+					Character c = scanner.nextLine().charAt(0);
+					batch.add(c);
+					scannerIndex.add(c);
 				}
 			});
-			print(batch);
-			for (int i = 0; i < scanners.size(); i++) {
-				scanners.forEach(scanner -> {
-					if (scanner.hasNextLine()) {
-						try {
-							// Remove the top element and write to the sorted result file
-							writer.append(batch.poll() + System.lineSeparator()); // Add eol
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-						// Add next element after removal so batch size stays bounded
-						batch.add(scanner.nextLine().charAt(0)); // Skip eol
-                        print(batch);
-					}
-				});
-				print(batch);
-			}
-			// Print the remaining elements to the sorted result file
 			while (!batch.isEmpty()) {
-				writer.append(batch.poll() + System.lineSeparator()); // Add eol
+				print(batch);
+				int index = scannerIndex.indexOf(batch.peek());
+				writer.append(batch.poll() + System.lineSeparator());
+				if (scanners.get(index).hasNext()) {
+					Character c = scanners.get(index).nextLine().charAt(0);
+					batch.add(c);
+					scannerIndex.remove(index);
+					scannerIndex.add(index, c);
+				}
 			}
 		} // Try with auto closes all open resources
+
 		print(file);
 	}
 
