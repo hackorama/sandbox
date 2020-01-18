@@ -3,6 +3,8 @@
 Sorts a given file limiting memory use bounded by given batch size
 
 ```
+$ javac FileSorter.java
+
 $ java FileSorter
 unsorted-7968055055835202289-tmp.txt: t q a h c z f e n s p r y k m w v i d j u o b g l x
 batch-3873681165930089476-tmp.txt: a c h q t
