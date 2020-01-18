@@ -62,7 +62,7 @@ public class FileSorter {
         return file;
     }
 
-    private void mergeSortBatches(ArrayList<File> files) throws IOException {
+    private void mergeSortedBatches(ArrayList<File> files) throws IOException {
 
         // Create scanners that will read one line at a time from sorted batch files
         ArrayList<Scanner> scanners = new ArrayList<>();
@@ -93,9 +93,11 @@ public class FileSorter {
             while (!batch.isEmpty()) {
                 print(batch);
                 int index = scannerIndex.indexOf(batch.peek());
+                // Remove top elemenet from min heap
                 writer.append(batch.poll() + System.lineSeparator());
                 if (scanners.get(index).hasNext()) {
                     Character c = scanners.get(index).nextLine().charAt(0);
+                    // Add next element from the same scanner to min heap
                     batch.add(c);
                     scannerIndex.set(index, c);
                 }
@@ -116,7 +118,6 @@ public class FileSorter {
     }
 
     private void print(File file) throws FileNotFoundException {
-        // Lines are streamed one at a time by scanner
         try (Scanner scanner = new Scanner(new FileInputStream(file))) {
             System.out.print(file.getName() + ": ");
             while (scanner.hasNextLine()) {
@@ -146,16 +147,16 @@ public class FileSorter {
         print(inputFile);
 
         ArrayList<File> sortedBatchFiles = new ArrayList<>();
-        int batchCounter = 1;
 
+        // Read in batches, sort and write to separate files
         try (Scanner scanner = new Scanner(new FileInputStream(inputFile))) {
-
             sortedBatchFiles.add(createFile("batch"));
             FileWriter writer = new FileWriter(sortedBatchFiles.get(sortedBatchFiles.size() - 1));
             List<Character> batch = new ArrayList<>();
+            int batchCounter = 1;
 
             while (scanner.hasNextLine()) {
-                batch.add(scanner.nextLine().charAt(0)); // Skip eol
+                batch.add(scanner.nextLine().charAt(0));
                 if (batchCounter++ >= batchSize) {
                     batchCounter = 1;
                     sortedBatchFiles.add(createFile("batch"));
@@ -168,7 +169,7 @@ public class FileSorter {
                     writer = new FileWriter(sortedBatchFiles.get(sortedBatchFiles.size() - 1));
                 }
             }
-
+            // Left over partial batch
             if (batch.size() > 0) {
                 Collections.sort(batch);
                 for (int i = 0; i < batch.size(); i++) {
@@ -180,7 +181,7 @@ public class FileSorter {
 
         print(sortedBatchFiles);
 
-        mergeSortBatches(sortedBatchFiles);
+        mergeSortedBatches(sortedBatchFiles);
     }
 
     private void test() throws IOException {
