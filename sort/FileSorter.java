@@ -41,7 +41,7 @@ public class FileSorter {
 
 	/**
 	 * Use a test file of all lower case alphabets in random order as the input
-	 * 
+	 *
 	 * @return Unsorted input file
 	 * @throws IOException
 	 */
@@ -108,7 +108,6 @@ public class FileSorter {
 				e.printStackTrace();
 			}
 		});
-
 	}
 
 	private void print(File file) throws FileNotFoundException {
@@ -164,6 +163,7 @@ public class FileSorter {
 					writer = new FileWriter(sortedBatchFiles.get(sortedBatchFiles.size() - 1));
 				}
 			}
+
 			if (batch.size() > 0) {
 				Collections.sort(batch);
 				for (int i = 0; i < batch.size(); i++) {
@@ -172,7 +172,9 @@ public class FileSorter {
 				writer.close();
 			}
 		} // Try with auto closes all open resources
+
 		print(sortedBatchFiles);
+
 		mergeSortBatches(sortedBatchFiles);
 	}
 
