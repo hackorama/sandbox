@@ -152,7 +152,7 @@ public class FileSorter {
         try (Scanner scanner = new Scanner(new FileInputStream(inputFile))) {
             sortedBatchFiles.add(createFile("batch"));
             FileWriter writer = null;
-            try  {
+            try {
                 writer = new FileWriter(sortedBatchFiles.get(sortedBatchFiles.size() - 1));
                 List<Character> batch = new ArrayList<>();
                 int batchCounter = 1;
@@ -179,7 +179,7 @@ public class FileSorter {
                     }
                 }
             } finally {
-                if(writer!=null) {
+                if (writer != null) {
                     writer.close();
                 }
             }
