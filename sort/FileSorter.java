@@ -21,7 +21,7 @@ import java.util.Scanner;
  *   This keeps the min heap bounded to batch size, while generating the sorted result file
  *
  * NOTE: Proof of concept, functional version only
- *       Uses line number count as the batch size for demo, could change to memory as needed
+ *       Uses line number count as the batch size for demo, could change to memory size as needed
  *       Uses a single character lines, so printing of each step fits nicely on console
  *       Prints all file content and in memory contents to console for quick inspection/validation
  *
@@ -82,7 +82,7 @@ public class FileSorter {
             // Use an array list for index tracking of scanners
             List<Character> scannerIndex = new ArrayList<>();
 
-            // Populate initial batch min heap bounded by number of batches
+            // Populate initial batch min heap bounded by number of batch files
             scanners.forEach(scanner -> {
                 if (scanner.hasNextLine()) {
                     Character c = scanner.nextLine().charAt(0);
@@ -151,31 +151,37 @@ public class FileSorter {
         // Read in batches, sort and write to separate files
         try (Scanner scanner = new Scanner(new FileInputStream(inputFile))) {
             sortedBatchFiles.add(createFile("batch"));
-            FileWriter writer = new FileWriter(sortedBatchFiles.get(sortedBatchFiles.size() - 1));
-            List<Character> batch = new ArrayList<>();
-            int batchCounter = 1;
+            FileWriter writer = null;
+            try  {
+                writer = new FileWriter(sortedBatchFiles.get(sortedBatchFiles.size() - 1));
+                List<Character> batch = new ArrayList<>();
+                int batchCounter = 1;
 
-            while (scanner.hasNextLine()) {
-                batch.add(scanner.nextLine().charAt(0));
-                if (batchCounter++ >= batchSize) {
-                    batchCounter = 1;
-                    sortedBatchFiles.add(createFile("batch"));
+                while (scanner.hasNextLine()) {
+                    batch.add(scanner.nextLine().charAt(0));
+                    if (batchCounter++ >= batchSize) {
+                        batchCounter = 1;
+                        sortedBatchFiles.add(createFile("batch"));
+                        Collections.sort(batch);
+                        for (int i = 0; i < batch.size(); i++) {
+                            writer.append(batch.get(i) + System.lineSeparator());
+                        }
+                        batch.clear();
+                        writer.close();
+                        writer = new FileWriter(sortedBatchFiles.get(sortedBatchFiles.size() - 1));
+                    }
+                }
+                // Left over partial batch
+                if (batch.size() > 0) {
                     Collections.sort(batch);
                     for (int i = 0; i < batch.size(); i++) {
                         writer.append(batch.get(i) + System.lineSeparator());
                     }
-                    batch.clear();
+                }
+            } finally {
+                if(writer!=null) {
                     writer.close();
-                    writer = new FileWriter(sortedBatchFiles.get(sortedBatchFiles.size() - 1));
                 }
-            }
-            // Left over partial batch
-            if (batch.size() > 0) {
-                Collections.sort(batch);
-                for (int i = 0; i < batch.size(); i++) {
-                    writer.append(batch.get(i) + System.lineSeparator());
-                }
-                writer.close();
             }
         } // Try with auto closes all open resources
 
